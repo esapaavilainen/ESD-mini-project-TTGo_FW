@@ -1,7 +1,4 @@
 #include "config.h"
-#include "utils.h"
-
-
 
 // Check if Bluetooth configs are enabled
 #if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
@@ -25,17 +22,6 @@ volatile bool irqButton = false;
 bool sessionStored = false;
 bool sessionSent = false;
 
-    /*sensor->enableAccel();
-    sensor->enableActivityInterrupt();
-    sensor->enableAnyNoMotionInterrupt();
-    //sensor->enableFeature(); // <-- needs more inputs
-    sensor->enableIrq();
-    sensor->enableStepCountInterrupt();
-    sensor->enableTiltInterrupt();
-    sensor->enableWakeupInterrupt();
-    sensor->resetStepCounter();
-*/
-
 void initHikeWatch()
 {
     // LittleFS
@@ -43,25 +29,12 @@ void initHikeWatch()
         Serial.println("LITTLEFS Mount Failed");
         return;
     }
-    
 
     // Stepcounter
-    sensor->begin();
-    //uint32_t step_count = sensor->getCounter(); // returns the step count
-    
     // Configure IMU
-    sensor->enableAccel();
-    sensor->enableIrq();
-    //sensor->accelConfig();
-
     // Enable BMA423 step count feature
-    sensor->enableFeature(BMA423_STEP_CNTR, BMA4_ENABLE); //<-- need inputs
-
     // Reset steps
-    sensor->resetStepCounter();
-    
     // Turn on step interrupt
-    sensor->enableStepCountInterrupt();
 
     // Side button
     pinMode(AXP202_INT, INPUT_PULLUP);
@@ -79,7 +52,7 @@ void initHikeWatch()
 void sendDataBT(fs::FS &fs, const char * path)
 {
     /* Sends data via SerialBT */
-    fs::File file = fs.open(path);
+    File file = fs.open(path);
     if(!file || file.isDirectory()){
         Serial.println("- failed to open file for reading");
         return;
@@ -191,8 +164,8 @@ void loop()
 
                 if (sessionSent && sessionStored) {
                     // Update timeout before blocking while
-                    unsigned long updateTimeout = 0;
-                    unsigned long last = millis();
+                    updateTimeout = 0;
+                    last = millis();
                     while(1)
                     {
                         updateTimeout = millis();
@@ -257,7 +230,6 @@ void loop()
     case 2:
     {
         /* Hiking session initalisation */
-        sensor->begin();
         
         state = 3;
         break;
@@ -277,8 +249,8 @@ void loop()
         watch->tft->setCursor(45, 100);
         watch->tft->print("Dist: 0 km");
 
-        unsigned long last = millis();
-        unsigned long updateTimeout = 0;
+        last = millis();
+        updateTimeout = 0;
 
         //reset step-counter
     }
